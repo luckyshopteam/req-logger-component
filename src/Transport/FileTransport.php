@@ -34,10 +34,7 @@ class FileTransport implements TransportInterface
             mkdir($this->filePath, 0777, true );
         }
 
-        $file = fopen($this->filePath . '/' . $queue, 'w');
-
-        fwrite($file, var_export($data, true) . PHP_EOL);
-        fclose($file);
+        file_put_contents($this->filePath . '/' . $queue, var_export($data, true) . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 
     /**
