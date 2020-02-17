@@ -30,13 +30,13 @@ class FileTransport implements TransportInterface
      */
     public function send(array $data, string $queue): void
     {
-        if (!file_exists($this->filePath) ) {
+        if (!file_exists($this->filePath)) {
             mkdir($this->filePath, 0777, true );
         }
 
         $file = fopen($this->filePath . '/' . $queue, 'w');
 
-        fwrite($file, print_r($data, true) . PHP_EOL);
+        fwrite($file, var_export($data, true) . PHP_EOL);
         fclose($file);
     }
 
@@ -47,6 +47,6 @@ class FileTransport implements TransportInterface
      */
     protected function initFilePath(?string $filePath = null): void
     {
-        $this->filePath = $filePath ? $filePath : __DIR__ . '/../../../../runtime/request_logger';
+        $this->filePath = $filePath ? $filePath : __DIR__ . '/../../../../../runtime/request_logger';
     }
 }
