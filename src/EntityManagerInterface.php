@@ -8,7 +8,7 @@
 namespace Lucky\RequestLogger;
 
 use Lucky\RequestLogger\Entity\LogInterface;
-use Lucky\RequestLogger\Message\QueueInterface;
+use Lucky\RequestLogger\Transport\TransportInterface;
 
 /**
  * @author LuckyOnline
@@ -22,12 +22,12 @@ interface EntityManagerInterface
      *
      * @return void
      */
-    public function push(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE) :void;
+    public function sendLog(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE) :void;
 
     /**
-     * @param QueueInterface $store
+     * @param TransportInterface $transport
      *
      * @return EntityManagerInterface
      */
-    public function setQueue(QueueInterface $store) :EntityManagerInterface;
+    public function setTransport(TransportInterface $transport) :EntityManagerInterface;
 }

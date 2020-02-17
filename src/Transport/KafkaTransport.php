@@ -1,9 +1,9 @@
 <?php
 
-namespace Lucky\RequestLogger\Message;
+namespace Lucky\RequestLogger\Transport;
 
 use Lucky\RequestLogger\Exception\InvalidConfigException;
-use Lucky\RequestLogger\Exception\QueueException;
+use Lucky\RequestLogger\Exception\TransportException;
 use RdKafka\Conf;
 use RdKafka\Producer;
 use RdKafka\TopicConf;
@@ -13,11 +13,10 @@ use RdKafka\TopicConf;
  *
  * @package Lucky\RequestLogger
  */
-class Queue implements QueueInterface
+class KafkaTransport implements TransportInterface
 {
     private $brokers;
     private $logLevel;
-    private $emulatePush;
 
     private $producer;
     private $producerConf;
@@ -32,27 +31,22 @@ class Queue implements QueueInterface
 
         $this->setBrokers($config['brokers']);
         $this->setLogLevel($config['logLevel'] ?? LOG_NOTICE);
-        $this->setEmulatePush($config['emulatePush'] ?? false);
     }
 
     /**
      * @param array  $data
      * @param string $queue
      *
-     * @throws QueueException
+     * @throws TransportException
      */
-    public function push(array $data, string $queue): void
+    public function send(array $data, string $queue): void
     {
-        if ($this->emulatePush) {
-            return;
-        }
-
         try {
             $topic = $this->getProducer()->newTopic($queue);
             $topic->produce(RD_KAFKA_PARTITION_UA, 0, $this->serialize($data));
             $this->getProducer()->poll(15000);
         } catch (\Throwable $exception) {
-            throw new QueueException('Unknown error', 500, $exception);
+            throw new TransportException('Unknown error', 500, $exception);
         }
     }
 
@@ -89,11 +83,11 @@ class Queue implements QueueInterface
             // ставим обработчики ошибок
             $this->producerConf->setDrMsgCb(function($kafka, $message) {
                 if ($message->err) {
-                    throw new QueueException('Error send message');
+                    throw new TransportException('Error send message');
                 }
             });
             $this->producerConf->setErrorCb(function($kafka, $err, $reason) {
-                throw (new QueueException(printf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason)));
+                throw (new TransportException(printf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason)));
             });
         }
 
@@ -128,14 +122,6 @@ class Queue implements QueueInterface
             'headers'    => [],
             'properties' => [],
         ]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setEmulatePush(bool $emulate): void
-    {
-        $this->emulatePush = $emulate;
     }
 
     /**

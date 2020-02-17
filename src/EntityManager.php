@@ -8,7 +8,7 @@
 namespace Lucky\RequestLogger;
 
 use Lucky\RequestLogger\Entity\LogInterface;
-use Lucky\RequestLogger\Message\QueueInterface;
+use Lucky\RequestLogger\Transport\TransportInterface;
 
 /**
  * @author LuckyOnline
@@ -17,18 +17,18 @@ use Lucky\RequestLogger\Message\QueueInterface;
 class EntityManager implements EntityManagerInterface
 {
     /**
-     * @var QueueInterface
+     * @var TransportInterface
      */
-    private $queue;
+    private $transport;
 
     /**
-     * @param QueueInterface $queue
+     * @param TransportInterface $transport
      *
      * @return EntityManagerInterface
      */
-    public function setQueue(QueueInterface $queue): EntityManagerInterface
+    public function setTransport(TransportInterface $transport): EntityManagerInterface
     {
-        $this->queue = $queue;
+        $this->transport = $transport;
 
         return $this;
     }
@@ -39,8 +39,8 @@ class EntityManager implements EntityManagerInterface
      *
      * @return void
      */
-    public function push(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE): void
+    public function sendLog(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE): void
     {
-        $this->queue->push($entity->prepareToBrokerInsert(), $queue);
+        $this->transport->send($entity->prepareToBrokerInsert(), $queue);
     }
 }

@@ -28,7 +28,7 @@ class Client implements ClientInterface
      */
     public function log(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE): void
     {
-        $this->entityManager->push($entity, $queue);
+        $this->entityManager->sendLog($entity, $queue);
     }
 
     /**
