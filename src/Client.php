@@ -8,6 +8,9 @@
 namespace Lucky\RequestLogger;
 
 use Lucky\RequestLogger\Entity\LogInterface;
+use Lucky\RequestLogger\Exception\InvalidConfigException;
+use Lucky\RequestLogger\Transport\KafkaTransport;
+use Lucky\RequestLogger\Transport\TransportInterface;
 
 /**
  * @author LuckyOnline
@@ -16,30 +19,83 @@ use Lucky\RequestLogger\Entity\LogInterface;
 class Client implements ClientInterface
 {
     /**
-     * @var EntityManagerInterface
+     * @var Client $instance
      */
-    private $entityManager;
+    protected static $instance;
 
     /**
-     * @param LogInterface $entity
-     * @param string       $queue
+     * @var TransportInterface
+     */
+    protected $transport;
+
+    /**
+     * Инициализация клиента
+     *
+     * @param array $config
      *
      * @return void
+     * @throws InvalidConfigException
      */
-    public function log(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE): void
+    public static function init(array $config): void
     {
-        $this->entityManager->sendLog($entity, $queue);
+        $client = new static();
+        $client->setTransport(static::createTransport($config['transport'] ?? []));
+
+        static::$instance = $client;
     }
 
     /**
-     * @param EntityManagerInterface $manager
-     *
-     * @return ClientInterface
+     * @inheritDoc
      */
-    public function setEntityManager(EntityManagerInterface $manager): ClientInterface
+    public static function instance(): ?ClientInterface
     {
-        $this->entityManager = $manager;
+        return static::$instance;
+    }
+
+    /**
+     * @param TransportInterface $transport
+     *
+     * @return Client
+     */
+    public function setTransport(TransportInterface $transport): ClientInterface
+    {
+        $this->transport = $transport;
 
         return $this;
+    }
+
+    /**
+     * @param LogInterface $log
+     *
+     * @return void
+     */
+    public function sendLog(LogInterface $log): void
+    {
+        $this->transport->send($log);
+    }
+
+    /**
+     * @param array|object $config
+     *
+     * @return TransportInterface
+     * @throws InvalidConfigException
+     */
+    protected static function createTransport($config)
+    {
+        if (!$config) {
+            throw new InvalidConfigException('Transport configuration is empty');
+        } elseif (is_object($config)) {
+            $transport = $config;
+        } else {
+            $transportClass = $config['class'] ?? KafkaTransport::class; //по дефолту ставим кафку
+            unset($config['class']);
+            $transport = new $transportClass($config);
+        }
+
+        if ($transport instanceof TransportInterface) {
+            return $transport;
+        }
+
+        throw new InvalidConfigException('The class ' . get_class($transport) .' must implement ' . TransportInterface::class);
     }
 }

@@ -11,9 +11,6 @@
         "ext-json": "*"
     },
     "autoload": {
-        "files": [
-            "src/functions.php"
-        ],
         "psr-4": {
             "Lucky\\RequestLogger\\": "/src"
         }

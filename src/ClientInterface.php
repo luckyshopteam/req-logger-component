@@ -8,6 +8,7 @@
 namespace Lucky\RequestLogger;
 
 use Lucky\RequestLogger\Entity\LogInterface;
+use Lucky\RequestLogger\Transport\TransportInterface;
 
 /**
  * @author LuckyOnline
@@ -16,10 +17,33 @@ use Lucky\RequestLogger\Entity\LogInterface;
 interface ClientInterface
 {
     /**
-     * @param LogInterface $entity
-     * @param string       $queue
+     * Инициализация клиента
      *
+     * @param array $config
      * @return void
      */
-    public function log(LogInterface $entity, string $queue = Queues::REQUEST_LOG_QUEUE): void;
+    public static function init(array $config): void;
+
+    /**
+     * Получение экземпляра клиента.
+     * Сначала нужно проинициализировать клиент вызвав метод init()
+     *
+     * @return ClientInterface|null
+     *
+     * @see init()
+     * @see Client::init()
+     */
+    public static function instance(): ?ClientInterface;
+
+    /**
+     * @param LogInterface $entity
+     * @return void
+     */
+    public function sendLog(LogInterface $entity): void;
+
+    /**
+     * @param TransportInterface $transport
+     * @return ClientInterface
+     */
+    public function setTransport(TransportInterface $transport) :ClientInterface;
 }

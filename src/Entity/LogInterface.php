@@ -14,16 +14,6 @@ namespace Lucky\RequestLogger\Entity;
 interface LogInterface
 {
     /**
-     * @return array
-     */
-    public function prepareToBrokerInsert(): array;
-
-    /**
-     * @return array
-     */
-    public function prepareToStoreInsert(): array;
-
-    /**
      * @return integer|string|null
      */
     public function getAppKey();

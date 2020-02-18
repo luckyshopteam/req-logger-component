@@ -8,7 +8,6 @@
 namespace Lucky\RequestLogger\Entity;
 
 use Lucky\RequestLogger\Exception\InvalidArgumentException;
-use Lucky\RequestLogger\Exception\LogException;
 
 /**
  * @author LuckyOnline
@@ -53,66 +52,6 @@ class Log implements LogInterface
     protected $requestMethod;
     protected $responseStatusCode;
     protected $data;
-
-    /**
-     * Подготавливаем для в ставки в бд
-     * @return array
-     */
-    public function prepareToStoreInsert(): array
-    {
-        $this->beforeStoreInsert();
-
-        return [
-            'project_id'           => (int) $this->getProjectId(),
-            'action'               => (int) $this->getAction(),
-            'filter1'              => (string) $this->getFilter1(),
-            'filter2'              => (string) $this->getFilter2(),
-            'filter3'              => (string) $this->getFilter3(),
-            'filter4'              => (string) $this->getFilter4(),
-            'filter5'              => (string) $this->getFilter5(),
-            'date'                 => $this->getDate(),
-            'datetime'             => $this->getDatetime(),
-            'is_internal'          => (int) $this->getIsInternal(),
-            'request_url'          => (string) $this->getRequestUrl(),
-            'request_data'         => (string) $this->getRequestData(),
-            'request_method'       => (int) $this->getRequestMethod(),
-            'request_header'       => (string) $this->getRequestHeader(),
-            'response_data'        => (string) $this->getResponseData(),
-            'response_header'      => (string) $this->getResponseHeader(),
-            'response_status_code' => (int) $this->getResponseStatusCode(),
-            'data'                 => $this->getData() ? json_encode($this->getData()) : '',
-        ];
-    }
-
-    /**
-     * Подготавливаем для вставки в брокер сообщений
-     * @return array
-     */
-    public function prepareToBrokerInsert(): array
-    {
-        $this->beforeBrokerInsert();
-
-        return [
-            'appKey'             => $this->getAppKey(),
-            'action'             => $this->getAction(),
-            'filter1'            => $this->getFilter1(),
-            'filter2'            => $this->getFilter2(),
-            'filter3'            => $this->getFilter3(),
-            'filter4'            => $this->getFilter4(),
-            'filter5'            => $this->getFilter5(),
-            'date'               => $this->getDate(),
-            'datetime'           => $this->getDatetime(),
-            'isInternal'         => $this->getIsInternal(),
-            'requestUrl'         => $this->getRequestUrl(),
-            'requestData'        => $this->getRequestData(),
-            'requestMethod'      => $this->getRequestMethod(),
-            'requestHeader'      => $this->getRequestHeader(),
-            'responseData'       => $this->getResponseData(),
-            'responseHeader'     => $this->getResponseHeader(),
-            'responseStatusCode' => $this->getResponseStatusCode(),
-            'data'               => $this->getData(),
-        ];
-    }
 
     /**
      * @inheritDoc
@@ -441,32 +380,6 @@ class Log implements LogInterface
     {
         if (isset($value) && !is_scalar($value)) {
             throw new InvalidArgumentException('Attribute ' . $attr . ' must be a scalar type.');
-        }
-    }
-
-    /**
-     * @return void
-     */
-    protected function beforeStoreInsert()
-    {
-        if (empty($this->getProjectId())) {
-            throw new LogException('Project id must be set');
-        }
-    }
-
-    /**
-     * @return void
-     */
-    protected function beforeBrokerInsert()
-    {
-        if (empty($this->getAppKey())) {
-            throw new LogException('Application key must be set');
-        }
-        if (empty($this->getDate())) {
-            $this->setDate(date('Y-m-d', time()));
-        }
-        if (empty($this->getDatetime())) {
-            $this->setDatetime(date('Y-m-d H:i:s', time()));
         }
     }
 }

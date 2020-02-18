@@ -2,6 +2,8 @@
 
 namespace Lucky\RequestLogger\Transport;
 
+use Lucky\RequestLogger\Entity\LogInterface;
+
 /**
  * Сохранение данных в файл
  *
@@ -9,10 +11,19 @@ namespace Lucky\RequestLogger\Transport;
  */
 class FileTransport implements TransportInterface
 {
+    use TransportTrait;
+
+    const DEFAULT_FILENAME = 'request_logger';
+    const DEFAULT_FILEPATH = '/../../../../../runtime/request_logger';
+
     /**
      * @var string $filePath
      */
     private $filePath;
+    /**
+     * @var string $fileName
+     */
+    private $fileName;
 
     /**
      * FileTransport constructor.
@@ -22,28 +33,43 @@ class FileTransport implements TransportInterface
     public function __construct(array $config)
     {
         $this->initFilePath($config['filePath'] ?? null);
+        $this->initFileName($config['fileName'] ?? null);
     }
 
     /**
-     * @param array  $data
-     * @param string $queue
+     * @param LogInterface $log
      */
-    public function send(array $data, string $queue): void
+    public function send(LogInterface $log): void
     {
         if (!file_exists($this->filePath)) {
             mkdir($this->filePath, 0777, true );
         }
 
-        file_put_contents($this->filePath . '/' . $queue, var_export($data, true) . PHP_EOL, FILE_APPEND | LOCK_EX);
+        file_put_contents(
+            $this->filePath . '/' . $this->fileName,
+            $this->prepareLogData($log) . PHP_EOL,
+            FILE_APPEND | LOCK_EX
+        );
     }
 
     /**
-     * Инициализация пути для для сохранения файлов
+     * Инициализация пути для сохранения файлов
      *
      * @param string $filePath
      */
     protected function initFilePath(?string $filePath = null): void
     {
-        $this->filePath = $filePath ? $filePath : __DIR__ . '/../../../../../runtime/request_logger';
+        $this->filePath = $filePath ?? __DIR__ . self::DEFAULT_FILEPATH;
+    }
+
+    /**
+     * Инициализация имени файла
+     *
+     * @param string $fileName
+     * @return void
+     */
+    protected function initFileName(?string $fileName = null): void
+    {
+        $this->fileName = $fileName ?? self::DEFAULT_FILENAME;
     }
 }

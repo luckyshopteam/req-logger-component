@@ -2,11 +2,13 @@
 
 namespace Lucky\RequestLogger\Transport;
 
+use Lucky\RequestLogger\Entity\LogInterface;
 use Lucky\RequestLogger\Exception\InvalidConfigException;
 use Lucky\RequestLogger\Exception\TransportException;
 use RdKafka\Conf;
 use RdKafka\Producer;
 use RdKafka\TopicConf;
+use Throwable;
 
 /**
  * Class Queue
@@ -15,6 +17,13 @@ use RdKafka\TopicConf;
  */
 class KafkaTransport implements TransportInterface
 {
+    use TransportTrait;
+
+    /**
+     * Очередь где хранятся записи
+     */
+    const QUEUE_NAME = 'v1_request_log';
+
     private $brokers;
     private $logLevel;
 
@@ -34,18 +43,17 @@ class KafkaTransport implements TransportInterface
     }
 
     /**
-     * @param array  $data
-     * @param string $queue
+     * @param LogInterface $log
      *
      * @throws TransportException
      */
-    public function send(array $data, string $queue): void
+    public function send(LogInterface $log): void
     {
         try {
-            $topic = $this->getProducer()->newTopic($queue);
-            $topic->produce(RD_KAFKA_PARTITION_UA, 0, $this->serialize($data));
+            $topic = $this->getProducer()->newTopic(self::QUEUE_NAME);
+            $topic->produce(RD_KAFKA_PARTITION_UA, 0, $this->serialize($log));
             $this->getProducer()->poll(15000);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new TransportException('Unknown error', 500, $exception);
         }
     }
@@ -95,7 +103,7 @@ class KafkaTransport implements TransportInterface
     }
 
     /**
-     * @return \RdKafka\Producer
+     * @return Producer
      */
     private function getProducer()
     {
@@ -109,16 +117,13 @@ class KafkaTransport implements TransportInterface
     }
 
     /**
-     * Сериализуем только объекты которые есть в пп.
-     * В дальнейшем оставим только json объект
-     *
-     * @param array $data
+     * @param LogInterface $log
      * @return false|string
      */
-    private function serialize(array $data)
+    private function serialize(LogInterface $log)
     {
         return json_encode([
-            'body'       => json_encode($data),
+            'body'       => json_encode($this->prepareLogData($log)),
             'headers'    => [],
             'properties' => [],
         ]);

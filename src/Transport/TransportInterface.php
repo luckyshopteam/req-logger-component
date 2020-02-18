@@ -2,13 +2,14 @@
 
 namespace Lucky\RequestLogger\Transport;
 
+use Lucky\RequestLogger\Entity\LogInterface;
+
 interface TransportInterface
 {
     public function __construct(array $config);
 
     /**
-     * @param array $data
-     * @param string|null $queue
+     * @param LogInterface $log
      */
-    public function send(array $data, string $queue): void;
+    public function send(LogInterface $log): void;
 }

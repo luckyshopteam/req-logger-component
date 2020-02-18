@@ -2,6 +2,8 @@
 
 namespace Lucky\RequestLogger\Transport;
 
+use Lucky\RequestLogger\Entity\LogInterface;
+
 /**
  * Заглушка
  *
@@ -9,8 +11,7 @@ namespace Lucky\RequestLogger\Transport;
  */
 class NullTransport implements TransportInterface
 {
-
     public function __construct(array $config) {}
 
-    public function send(array $data, string $queue): void { }
+    public function send(LogInterface $log): void { }
 }
