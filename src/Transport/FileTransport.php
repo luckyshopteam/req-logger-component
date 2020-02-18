@@ -47,7 +47,7 @@ class FileTransport implements TransportInterface
 
         file_put_contents(
             $this->filePath . '/' . $this->fileName,
-            var_export($this->prepareLogData($log)) . PHP_EOL,
+            var_export($this->prepareLogData($log), true) . PHP_EOL,
             FILE_APPEND | LOCK_EX
         );
     }
