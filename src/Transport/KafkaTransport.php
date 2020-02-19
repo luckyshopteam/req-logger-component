@@ -122,7 +122,7 @@ class KafkaTransport implements TransportInterface
     {
         return json_encode(
             [
-                'body'       => serialize($log),
+                'body'       => addslashes(serialize($log)),
                 'headers'    => [],
                 'properties' => [],
             ]

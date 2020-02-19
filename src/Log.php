@@ -16,24 +16,6 @@ use Lucky\RequestLogger\Exception\InvalidArgumentException;
  */
 class Log implements LogInterface
 {
-    const REQUEST_METHOD_OPTIONS = 0;
-    const REQUEST_METHOD_GET     = 1;
-    const REQUEST_METHOD_POST    = 2;
-    const REQUEST_METHOD_PUT     = 3;
-    const REQUEST_METHOD_HEAD    = 4;
-    const REQUEST_METHOD_DELETE  = 5;
-    const REQUEST_METHOD_PATCH   = 6;
-
-    const REQUEST_METHOD_LIST = [
-        self::REQUEST_METHOD_OPTIONS => 'OPTIONS',
-        self::REQUEST_METHOD_GET     => 'GET',
-        self::REQUEST_METHOD_POST    => 'POST',
-        self::REQUEST_METHOD_PUT     => 'PUT',
-        self::REQUEST_METHOD_HEAD    => 'HEAD',
-        self::REQUEST_METHOD_DELETE  => 'DELETE',
-        self::REQUEST_METHOD_PATCH   => 'PATCH',
-    ];
-
     protected $appKey;
     protected $action;
     protected $filter1;
