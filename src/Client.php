@@ -7,9 +7,6 @@
 
 namespace Lucky\RequestLogger;
 
-use Lucky\RequestLogger\Entity\LogInterface;
-use Lucky\RequestLogger\Exception\InvalidConfigException;
-use Lucky\RequestLogger\Transport\KafkaTransport;
 use Lucky\RequestLogger\Transport\TransportInterface;
 
 /**
@@ -18,39 +15,11 @@ use Lucky\RequestLogger\Transport\TransportInterface;
  */
 class Client implements ClientInterface
 {
-    /**
-     * @var Client $instance
-     */
-    protected static $instance;
 
     /**
      * @var TransportInterface
      */
     protected $transport;
-
-    /**
-     * Инициализация клиента
-     *
-     * @param array $config
-     *
-     * @return void
-     * @throws InvalidConfigException
-     */
-    public static function init(array $config): void
-    {
-        $client = new static();
-        $client->setTransport(static::createTransport($config['transport'] ?? []));
-
-        static::$instance = $client;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function instance(): ?ClientInterface
-    {
-        return static::$instance;
-    }
 
     /**
      * @param TransportInterface $transport
@@ -74,28 +43,4 @@ class Client implements ClientInterface
         $this->transport->send($log);
     }
 
-    /**
-     * @param array|object $config
-     *
-     * @return TransportInterface
-     * @throws InvalidConfigException
-     */
-    protected static function createTransport($config)
-    {
-        if (!$config) {
-            throw new InvalidConfigException('Transport configuration is empty');
-        } elseif (is_object($config)) {
-            $transport = $config;
-        } else {
-            $transportClass = $config['class'] ?? KafkaTransport::class; //по дефолту ставим кафку
-            unset($config['class']);
-            $transport = new $transportClass($config);
-        }
-
-        if ($transport instanceof TransportInterface) {
-            return $transport;
-        }
-
-        throw new InvalidConfigException('The class ' . get_class($transport) .' must implement ' . TransportInterface::class);
-    }
 }

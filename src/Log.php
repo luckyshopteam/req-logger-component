@@ -5,8 +5,9 @@
  * @version   1.0.0
  */
 
-namespace Lucky\RequestLogger\Entity;
+namespace Lucky\RequestLogger;
 
+use DateTime;
 use Lucky\RequestLogger\Exception\InvalidArgumentException;
 
 /**
@@ -34,14 +35,12 @@ class Log implements LogInterface
     ];
 
     protected $appKey;
-    protected $projectId;
     protected $action;
     protected $filter1;
     protected $filter2;
     protected $filter3;
     protected $filter4;
     protected $filter5;
-    protected $date;
     protected $datetime;
     protected $isInternal;
     protected $requestUrl;
@@ -63,26 +62,16 @@ class Log implements LogInterface
 
     /**
      * @inheritDoc
-     * @throws InvalidArgumentException
      */
-    public function setAppKey($value): void
+    public function setAppKey(string $value): void
     {
-        $this->checkScalar('appKey', $value);
         $this->appKey = $value;
     }
 
     /**
      * @inheritDoc
      */
-    public function getProjectId(): ?int
-    {
-        return $this->projectId;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAction(): ?int
+    public function getAction()
     {
         return $this->action;
     }
@@ -130,15 +119,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getDate(): ?string
-    {
-        return $this->date;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getDatetime(): ?string
+    public function getDatetime(): ?DateTime
     {
         return $this->datetime;
     }
@@ -146,7 +127,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getIsInternal(): ?int
+    public function getIsInternal(): ?bool
     {
         return $this->isInternal;
     }
@@ -194,7 +175,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getRequestMethod(): ?int
+    public function getRequestMethod(): ?string
     {
         return $this->requestMethod;
     }
@@ -217,17 +198,11 @@ class Log implements LogInterface
 
     /**
      * @inheritDoc
+     * @throws InvalidArgumentException
      */
-    public function setProjectId($value): void
+    public function setAction($value = null): void
     {
-        $this->projectId = $value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAction(?int $value): void
-    {
+        $this->checkScalar('action', $value);
         $this->action = $value;
     }
 
@@ -242,15 +217,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function setDate(?string $value): void
-    {
-        $this->date = $value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setDatetime(?string $value): void
+    public function setDatetime(DateTime $value): void
     {
         $this->datetime = $value;
     }
@@ -258,7 +225,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function setIsInternal(?int $value): void
+    public function setIsInternal(bool $value): void
     {
         $this->isInternal = $value;
     }
@@ -306,7 +273,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function setRequestMethod(?int $value): void
+    public function setRequestMethod(?string $value): void
     {
         $this->requestMethod = $value;
     }
@@ -382,4 +349,5 @@ class Log implements LogInterface
             throw new InvalidArgumentException('Attribute ' . $attr . ' must be a scalar type.');
         }
     }
+
 }

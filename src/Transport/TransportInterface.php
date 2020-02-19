@@ -2,11 +2,10 @@
 
 namespace Lucky\RequestLogger\Transport;
 
-use Lucky\RequestLogger\Entity\LogInterface;
+use Lucky\RequestLogger\LogInterface;
 
 interface TransportInterface
 {
-    public function __construct(array $config);
 
     /**
      * @param LogInterface $log

@@ -2,8 +2,7 @@
 
 namespace Lucky\RequestLogger\Transport;
 
-use Lucky\RequestLogger\Entity\LogInterface;
-use Lucky\RequestLogger\Exception\InvalidConfigException;
+use Lucky\RequestLogger\LogInterface;
 use Lucky\RequestLogger\Exception\TransportException;
 use RdKafka\Conf;
 use RdKafka\Producer;
@@ -17,7 +16,6 @@ use Throwable;
  */
 class KafkaTransport implements TransportInterface
 {
-    use TransportTrait;
 
     /**
      * Очередь где хранятся записи
@@ -32,14 +30,10 @@ class KafkaTransport implements TransportInterface
 
     private $topicConf;
 
-    public function __construct(array $config)
+    public function __construct(string $brokers, int $logLevel = LOG_NOTICE)
     {
-        if (!isset($config['brokers'])) {
-            throw new InvalidConfigException('Broker list must be set');
-        }
-
-        $this->setBrokers($config['brokers']);
-        $this->setLogLevel($config['logLevel'] ?? LOG_NOTICE);
+        $this->brokers  = $brokers;
+        $this->logLevel = $logLevel;
     }
 
     /**
@@ -66,7 +60,7 @@ class KafkaTransport implements TransportInterface
         if (!$this->topicConf) {
             $this->topicConf = new TopicConf();
             // produce
-            $this->topicConf->set('acks', 'all'); // подтверждение записи;
+            $this->topicConf->set('acks', 'all');              // подтверждение записи;
             $this->topicConf->set('message.timeout.ms', 5000); // макс таймаут отправки сообщения
             // consumer
             $this->topicConf->set('auto.offset.reset', 'largest');
@@ -82,21 +76,25 @@ class KafkaTransport implements TransportInterface
     {
         if (!$this->producerConf) {
             $this->producerConf = new Conf();
-            $this->producerConf->set('retries', 5); // максимальное кол-во попыток
+            $this->producerConf->set('retries', 5);                        // максимальное кол-во попыток
             $this->producerConf->set('bootstrap.servers', $this->brokers); // бутстрап серверов
             $this->producerConf->set('metadata.request.timeout.ms', 5000);
             $this->producerConf->set('topic.metadata.refresh.interval.ms', 5000);
             $this->producerConf->setDefaultTopicConf($this->getTopicConf());
 
             // ставим обработчики ошибок
-            $this->producerConf->setDrMsgCb(function($kafka, $message) {
-                if ($message->err) {
-                    throw new TransportException('Error send message');
+            $this->producerConf->setDrMsgCb(
+                function ($kafka, $message) {
+                    if ($message->err) {
+                        throw new TransportException('Error send message');
+                    }
                 }
-            });
-            $this->producerConf->setErrorCb(function($kafka, $err, $reason) {
-                throw (new TransportException(printf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason)));
-            });
+            );
+            $this->producerConf->setErrorCb(
+                function ($kafka, $err, $reason) {
+                    throw (new TransportException(printf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason)));
+                }
+            );
         }
 
         return $this->producerConf;
@@ -122,26 +120,12 @@ class KafkaTransport implements TransportInterface
      */
     private function serialize(LogInterface $log)
     {
-        return json_encode([
-            'body'       => json_encode($this->prepareLogData($log)),
-            'headers'    => [],
-            'properties' => [],
-        ]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setLogLevel(int $level): void
-    {
-        $this->logLevel = $level;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setBrokers(string $brokers): void
-    {
-        $this->brokers = $brokers;
+        return json_encode(
+            [
+                'body'       => serialize($log),
+                'headers'    => [],
+                'properties' => [],
+            ]
+        );
     }
 }

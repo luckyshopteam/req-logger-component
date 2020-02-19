@@ -5,7 +5,9 @@
  * @version   1.0.0
  */
 
-namespace Lucky\RequestLogger\Entity;
+namespace Lucky\RequestLogger;
+
+use DateTime;
 
 /**
  * @author LuckyOnline
@@ -14,37 +16,26 @@ namespace Lucky\RequestLogger\Entity;
 interface LogInterface
 {
     /**
-     * @return integer|string|null
+     * @return string
      */
     public function getAppKey();
 
     /**
-     * @param int|null $value
+     * @param string $value
      * @return void
      */
-    public function setAppKey($value): void;
+    public function setAppKey(string $value): void;
 
     /**
-     * @return integer|null
+     * @return string|integer
      */
-    public function getProjectId();
+    public function getAction();
 
     /**
-     * @param int|null $value
+     * @param string|integer $value
      * @return void
      */
-    public function setProjectId($value): void;
-
-    /**
-     * @return integer
-     */
-    public function getAction(): ?int;
-
-    /**
-     * @param int|null $value
-     * @return void
-     */
-    public function setAction(?int $value): void;
+    public function setAction($value = null): void;
 
     /**
      * @return string|integer
@@ -72,19 +63,14 @@ interface LogInterface
     public function getFilter5();
 
     /**
-     * @return string
+     * @return DateTime
      */
-    public function getDate(): ?string;
+    public function getDatetime(): ?DateTime;
 
     /**
-     * @return string
+     * @return boolean
      */
-    public function getDatetime(): ?string;
-
-    /**
-     * @return integer
-     */
-    public function getIsInternal(): ?int;
+    public function getIsInternal(): ?bool;
 
     /**
      * @return string
@@ -112,9 +98,9 @@ interface LogInterface
     public function getResponseData(): ?string;
 
     /**
-     * @return integer
+     * @return string
      */
-    public function getRequestMethod(): ?int;
+    public function getRequestMethod(): ?string;
 
     /**
      * @return integer
@@ -163,25 +149,17 @@ interface LogInterface
     public function setFilter5($value): void;
 
     /**
-     * @param string $value
-     *
+     * @param DateTime $value
      * @return void
      */
-    public function setDate(string $value): void;
+    public function setDatetime(DateTime $value): void;
 
     /**
-     * @param string $value
+     * @param boolean $value
      *
      * @return void
      */
-    public function setDatetime(string $value): void;
-
-    /**
-     * @param int $value
-     *
-     * @return void
-     */
-    public function setIsInternal(int $value): void;
+    public function setIsInternal(bool $value): void;
 
     /**
      * @param string $value
@@ -219,7 +197,7 @@ interface LogInterface
      *
      * @return void
      */
-    public function setRequestMethod(int $value): void;
+    public function setRequestMethod(string $value): void;
 
     /**
      * @param int $value
