@@ -32,10 +32,10 @@ interface LogInterface
     public function getAction();
 
     /**
-     * @param string|integer $value
+     * @param string|integer|null $value
      * @return void
      */
-    public function setAction($value = null): void;
+    public function setAction($value): void;
 
     /**
      * @return string|integer
@@ -78,24 +78,24 @@ interface LogInterface
     public function getRequestUrl(): ?string;
 
     /**
-     * @return mixed
+     * @return array|null
      */
-    public function getRequestHeader(): ?string;
+    public function getRequestHeader(): ?array;
 
     /**
-     * @return mixed
+     * @return array|string|null
      */
-    public function getRequestData(): ?string;
+    public function getRequestData();
 
     /**
-     * @return mixed
+     * @return array|null
      */
-    public function getResponseHeader(): ?string;
+    public function getResponseHeader(): ?array;
 
     /**
-     * @return mixed
+     * @return array|string|null
      */
-    public function getResponseData(): ?string;
+    public function getResponseData();
 
     /**
      * @return string
@@ -156,52 +156,48 @@ interface LogInterface
 
     /**
      * @param boolean $value
-     *
      * @return void
      */
     public function setIsInternal(bool $value): void;
 
     /**
      * @param string $value
-     *
      * @return void
      */
     public function setRequestUrl(string $value): void;
 
     /**
-     * @param mixed $value
+     * @param array|null $value
      * @return void
      */
-    public function setRequestHeader(?string $value): void;
+    public function setRequestHeader(?array $value): void;
+
+    /**
+     * @param array|string $value
+     * @return void
+     */
+    public function setRequestData($value): void;
+
+    /**
+     * @param array|null $value
+     * @return void
+     */
+    public function setResponseHeader(?array $value): void;
+
+    /**
+     * @param array|string|null $value
+     * @return void
+     */
+    public function setResponseData($value): void;
 
     /**
      * @param mixed $value
-     * @return void
-     */
-    public function setRequestData(string $value): void;
-
-    /**
-     * @param mixed $value
-     * @return void
-     */
-    public function setResponseHeader(?string $value): void;
-
-    /**
-     * @param mixed $value
-     * @return void
-     */
-    public function setResponseData(string $value): void;
-
-    /**
-     * @param mixed $value
-     *
      * @return void
      */
     public function setRequestMethod(string $value): void;
 
     /**
      * @param int $value
-     *
      * @return void
      */
     public function setResponseStatusCode(int $value): void;

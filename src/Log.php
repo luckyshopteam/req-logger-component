@@ -125,7 +125,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getRequestHeader(): ?string
+    public function getRequestHeader(): ?array
     {
         return $this->requestHeader;
     }
@@ -141,7 +141,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getResponseHeader(): ?string
+    public function getResponseHeader(): ?array
     {
         return $this->responseHeader;
     }
@@ -223,32 +223,36 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function setRequestHeader(?string $value): void
+    public function setRequestHeader(?array $value): void
     {
         $this->requestHeader = $value;
     }
 
     /**
      * @inheritDoc
+     * @throws InvalidArgumentException
      */
-    public function setRequestData(?string $value): void
+    public function setRequestData($value): void
     {
+        $this->checkData('requestData', $value);
         $this->requestData = $value;
     }
 
     /**
      * @inheritDoc
      */
-    public function setResponseHeader(?string $value): void
+    public function setResponseHeader(?array $value): void
     {
         $this->responseHeader = $value;
     }
 
     /**
      * @inheritDoc
+     * @throws InvalidArgumentException
      */
-    public function setResponseData(?string $value): void
+    public function setResponseData($value): void
     {
+        $this->checkData('responseData', $value);
         $this->responseData = $value;
     }
 
@@ -319,17 +323,33 @@ class Log implements LogInterface
     }
 
     /**
-     * @param null  $attr
-     * @param mixed $value
+     * @param string $attr
+     * @param mixed  $value
      *
      * @return void
      * @throws InvalidArgumentException
      */
-    protected function checkScalar($attr, $value)
+    protected function checkScalar(string $attr, $value)
     {
         if (isset($value) && !is_scalar($value)) {
             throw new InvalidArgumentException('Attribute ' . $attr . ' must be a scalar type.');
         }
     }
 
+    /**
+     * Для проверки валидности данных от Request и Response.
+     * Храним в данном аттрибуте только строку или массив (в микросервисе массив будет приведен к json строке)
+
+     * @param string $attr
+     * @param mixed  $value
+     *
+     * @return void
+     * @throws InvalidArgumentException
+     */
+    protected function checkData(string $attr, $value)
+    {
+        if (isset($value) && !is_scalar($value) && !is_array($value)) {
+            throw new InvalidArgumentException('Attribute ' . $attr . ' must be a scalar type or an array.');
+        }
+    }
 }
