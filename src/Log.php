@@ -133,7 +133,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getRequestData(): ?string
+    public function getRequestData()
     {
         return $this->requestData;
     }
@@ -149,7 +149,7 @@ class Log implements LogInterface
     /**
      * @inheritDoc
      */
-    public function getResponseData(): ?string
+    public function getResponseData()
     {
         return $this->responseData;
     }
